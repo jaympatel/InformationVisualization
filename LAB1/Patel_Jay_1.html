@@ -1,0 +1,48 @@
+<html>
+<head>
+<style>
+  .navy-back{
+    background-color: navy;
+    color: white;
+    padding: 5px;
+  }
+  body{
+    font-family: sans-serif;
+    margin: auto;
+  }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+
+<script type="text/javascript">
+function search(){
+  var countries = [
+                    {name: "India", GDP: 500},
+                    {name: "US", GDP: 300},
+                    {name: "Brazil", GDP: 1000},
+                    {name: "Iraq", GDP: 890},
+                  ];
+  var search = d3.select("#search-term").node().value;
+  for(var i=0; i<countries.length;i++){
+    if(countries[i].name===search){
+      console.log(countries[i].GDP);
+      d3.select("#gdp-value").node().innerHTML = "$"+countries[i].GDP;
+      return;
+    }
+  }
+  console.log("No Data Found!");
+  d3.select("#gdp-value").node().innerHTML = "No Data Found!";
+}
+
+</script>
+<title>LAB 2 | D3.js Introduction</title>
+</head>
+<body>
+  <h1 id="title" class="navy-back"> Country GDP vs Easy of business</h1>
+  <label id="search">Search:</label>
+  <input type="text" id="search-term" name="search-term"/>
+  <button id="go-button" class="navy-back" onclick="search()">Go</button>
+  <label>GDP: </label>
+  <label id="gdp-value"> </label>
+</body>
+</html>
