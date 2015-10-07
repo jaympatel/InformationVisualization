@@ -1,5 +1,17 @@
 <html>
 <head>
+<style>
+  .navy-back{
+    background-color: navy;
+    color: white;
+    padding: 5px;
+  }
+  body{
+    font-family: sans-serif;
+    margin: auto;
+  }
+</style>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
 
 <!--
@@ -7,51 +19,50 @@
 
   python -m SimpleHTTPServer
 -->
-
 <script>
-var data = null;
-d3.csv("../LAB2/data.csv", function(result){
-    dataloaded(result);
-});
+    var data = null;
+    d3.csv("data.csv", function(result){
+        dataloaded(result);
+    });
+    
+    function dataloaded(result){
+        // Map the data into particular format
+        data = result.map(function(d){
+            return {
+                name: d.Country,
+                GDP: +d['GDP per Capita'].replace("$", "").replace(",", ""),
+                Year: new Date(d.Year).getYear() + 1900
+            }
+        });
+        // Filter the data for year "2012"
+        data = data.filter(function(d) {
+            return d.Year == 2012;
+        });
+    }
 
-function dataloaded(result){
-    // Map the data into particular format
-    data = result.map(function(d){
-        return {
-            name: d.Country,
-            GDP: +d['GDP per Capita'].replace("$", "").replace(",", ""),
-            Year: new Date(d.Year).getYear() + 1900
+    function search(){
+      console.log("Data length:"+data.length);
+      var search = d3.select("#search-term").node().value;
+      for(var i=0; i<data.length;i++){
+        if(data[i].name===search){
+          console.log(data[i].GDP);
+          d3.select("#gdp-value").node().innerHTML = "$"+data[i].GDP;
+          return;
         }
-    });
-    // Filter the data for year "2012"
-    data = data.filter(function(d) {
-        return d.Year == 2012;
-    });
-}
-
-function load_data() {
-
-    var selection = d3.select("#list")
-                      .selectAll("li")
-                      .data(data, function(d) { return d.name; });
-
-    //enter
-    selection.enter().append("li");
-
-    //exit
-    selection.exit().remove();
-
-    //Update
-    selection.text(function(d) { return d.name + ": " + d.GDP });
-
-    console.log(data);
-}
-
+      }
+      console.log("No Data Found!");
+      d3.select("#gdp-value").node().innerHTML = "No Data Found!";
+    }
 </script>
-<title>Lab 3</title>
+
+<title>LAB 2 | Data Manipulation</title>
 </head>
 <body>
-  <button onclick="load_data()">Load Data</button>
-  <ul id="list"></ul>
+  <h1 id="title" class="navy-back"> Country GDP vs Easy of business</h1>
+  <label id="search">Search:</label>
+  <input type="text" id="search-term" name="search-term"/>
+  <button id="go-button" class="navy-back" onclick="search()">Go</button>
+  <label>GDP: </label>
+  <label id="gdp-value"> </label>
 </body>
 </html>
