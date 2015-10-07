@@ -10,6 +10,13 @@
     font-family: sans-serif;
     margin: auto;
   }
+  circle{
+    fill: red; /*Set the color of the circle to red */
+    opacity: 0.5; /*Set the opacity of the circle allowing the user to notice circles in the same position */
+  }
+  ul{
+    float: left
+  }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
@@ -20,11 +27,12 @@
   python -m SimpleHTTPServer
 -->
 <script>
+    
     var data = null;
     d3.csv("data.csv", function(result){
         dataloaded(result);
     });
-    
+
     function dataloaded(result){
         // Map the data into particular format
         data = result.map(function(d){
@@ -38,6 +46,61 @@
         data = data.filter(function(d) {
             return d.Year == 2012;
         });
+        data.sort(function(a, b) {
+          return d3.ascending(a.name, b.name);
+        });
+        listCountries();
+        showViz();
+    }
+
+    function showViz() {
+
+        //Set the width of the SVG to 600px;
+        d3.select("#viz").attr("width", 600);
+        
+        //Create a scale to map GDP to Pixels
+        var scale = d3.scale.linear();
+        
+        //Set Pixel range from 10 to 590, allowing 10 pixels of padding.
+        scale.range([10, 590])
+        
+        //Set the domain to be from 0 to the maximum GDP
+        scale.domain([0, d3.max(data, function(d) { return d.GDP; })])
+        
+        //Select the element that will hold the viz
+        var selection = d3.select("#viz") 
+            //Create virtual elements to be bound to the data
+            .selectAll("circle") 
+            //Bind each future 'circle' elements with each item in the data
+            .data(data, function(d) { return d.name; }); 
+        
+        //enter -> Operate only in new elements
+        selection.enter() 
+            //Create a real 'circle' element for each item in the data
+            .append("circle") 
+            //Set the radius of the circle to 5px, and position the circle according with the GDP on the x axis
+            .attr({
+                r: 5,
+                cx: function(d) { return scale(d.GDP) },
+                cy: 10,
+                title: function(d){return d.name}
+            });
+    }
+    
+
+    function listCountries(){
+      var selection = d3.select("#list")
+                .selectAll("li")
+                .data(data, function(d) { return d.name; });
+            
+            //enter
+            selection.enter().append("li");
+            
+            //exit
+            selection.exit().remove();
+            
+            //Update
+            selection.text(function(d) { return d.name + ": " + d.GDP });
     }
 
     function search(){
@@ -55,7 +118,7 @@
     }
 </script>
 
-<title>LAB 2 | Data Manipulation</title>
+<title>LAB 3</title>
 </head>
 <body>
   <h1 id="title" class="navy-back"> Country GDP vs Easy of business</h1>
@@ -64,5 +127,8 @@
   <button id="go-button" class="navy-back" onclick="search()">Go</button>
   <label>GDP: </label>
   <label id="gdp-value"> </label>
+  <br/>
+  <ul id="list"></ul>
+  <svg id="viz"></svg>
 </body>
 </html>
