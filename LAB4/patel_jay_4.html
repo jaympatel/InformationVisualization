@@ -17,6 +17,16 @@
   ul{
     float: left
   }
+  hr.vertical{
+    width: 0px;
+    height: 3800px;
+    float:left;
+  }
+  .domain{
+    fill:none;
+    stroke:#000;
+  } 
+
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
@@ -39,7 +49,8 @@
             return {
                 name: d.Country,
                 GDP: +d['GDP per Capita'].replace("$", "").replace(",", ""),
-                Year: new Date(d.Year).getYear() + 1900
+                Year: new Date(d.Year).getYear() + 1900,
+                EaseOfBusiness: d['Ease of Business']
             }
         });
         // Filter the data for year "2012"
@@ -57,16 +68,23 @@
 
         //Set the width of the SVG to 600px;
         d3.select("#viz").attr("width", 600);
+        d3.select("#viz").attr("height", 400);
         
         //Create a scale to map GDP to Pixels
-        var scale = d3.scale.linear();
+        var scaleX = d3.scale.linear();
+        var scaleY = d3.scale.linear();
         
         //Set Pixel range from 10 to 590, allowing 10 pixels of padding.
-        scale.range([10, 590])
+        scaleX.range([40, 590]);
+        scaleY.range([40, 380]);
         
         //Set the domain to be from 0 to the maximum GDP
-        scale.domain([0, d3.max(data, function(d) { return d.GDP; })])
+        scaleX.domain([0, d3.max(data, function(d) { return d.GDP; })]);
+        scaleY.domain([190,0]);
         
+        var axisX = d3.svg.axis().scale(scaleX).orient("bottom").tickFormat(function(d) { return "$" +d/1000+"k"});
+        var axisY = d3.svg.axis().scale(scaleY).orient("left");
+
         //Select the element that will hold the viz
         var selection = d3.select("#viz") 
             //Create virtual elements to be bound to the data
@@ -81,10 +99,16 @@
             //Set the radius of the circle to 5px, and position the circle according with the GDP on the x axis
             .attr({
                 r: 5,
-                cx: function(d) { return scale(d.GDP) },
-                cy: 10,
+                cx: function(d){ return scaleX(d.GDP) },
+                cy: function(d){ return scaleY(d.EaseOfBusiness)},
                 title: function(d){return d.name}
             });
+        d3.select("#viz").append("g")
+                           .attr("transform","translate(0,380)")
+                           .call(axisX);
+        d3.select("#viz").append("g")
+                           .attr("transform","translate(40,0)")
+                           .call(axisY)
     }
     
 
@@ -128,7 +152,8 @@
   <label>GDP: </label>
   <label id="gdp-value"> </label>
   <br/>
-  <ul id="list"></ul>
+  <h2>Countries</h2>
+  <ul id="list"></ul><hr class="vertical"/>
   <svg id="viz"></svg>
 </body>
 </html>
