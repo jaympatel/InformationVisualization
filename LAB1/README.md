@@ -3,7 +3,7 @@
 For this assignment you have to update the page created in class so that it 
 will be possible to provide a country name and return the GDP of the given 
 country. Here is a screenshot of how the final solution should look like:
-![alt text](img/lab1.jpg "Output Image")
+![alt text](img/lab1.png "Output Image")
 
 
 The user should be able to type the country name in the search box and, after clicking on GO the system should show the GDP next to the search box, as shown above.
