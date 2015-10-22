@@ -7,7 +7,7 @@ The result should look like:
 ![alt text](img/lab3.png "Output Image")
 
 
-The page should load the data from The CSV file located at: [data.csv]()
+The page should load the data from The CSV file located at: [data.csv](https://github.com/jaympatel/InformationVisualization/blob/master/LAB3/data.csv)
 
 => SUBMIT one single HTML file named lastname_firstname_3.html. All your code (HTML, CSS and Javascript) should be within this single file.
 
