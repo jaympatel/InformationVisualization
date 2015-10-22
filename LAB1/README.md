@@ -1,5 +1,5 @@
 # Lab 1
------------------------------------------------
+
 For this assignment you have to update the page created in class so that it 
 will be possible to provide a country name and return the GDP of the given 
 country. Here is a screenshot of how the final solution should look like:

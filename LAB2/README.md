@@ -1,6 +1,4 @@
 # Lab 2
------------------------------------------------
-
 
 For this assignment you have to update the page created in the [Lab 1](https://github.com/jaympatel/InformationVisualization/tree/master/LAB1) to use a CSV file instead of hard-coded data.
 

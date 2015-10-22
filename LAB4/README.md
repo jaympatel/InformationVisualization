@@ -1,5 +1,5 @@
 # Lab 4
------------------------------------------------
+
 For this assignment you have to update the page created in the [Lab 3](https://github.com/jaympatel/InformationVisualization/tree/master/LAB3) to show a scatterplot.
 
 You have to add the Easy of Business to your data and map this attribute to the Y position of the dot.
