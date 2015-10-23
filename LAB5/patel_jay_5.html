@@ -119,7 +119,9 @@
             .on("mouseover",function(d){
               // On mouse over select the dot and change the radius
               d3.select(this).attr("r", 10);
-              
+              d3.select(this).style({
+                "fill":"blue"
+              });
               var tooltip = d3.select("#tooltip");
               tooltip.select("#country-name").text(d.name);
               tooltip.select("#country-gdp").text(d.GDP);
@@ -136,6 +138,9 @@
               d3.select(this).attr("r", 5);
               d3.select("#tooltip").style({
                 "display": 'none'
+              });
+              d3.select(this).style({
+                "fill":"red"
               });
             })
             .on("click", function(d){
