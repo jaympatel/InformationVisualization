@@ -13,7 +13,7 @@ The user has to be able to:
 
 The result should look like:
 
-![alt text](img/lab4.png "Output Image")
+![alt text](img/lab5.png "Output Image")
 
 
 The page should load the data from The CSV file located at: [data.csv](https://github.com/jaympatel/InformationVisualization/blob/master/LAB5/data.csv)
