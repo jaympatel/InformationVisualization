@@ -80,9 +80,7 @@
         
         //Set the domain to be from 0 to the maximum GDP
         scaleX.domain([0, d3.max(data, function(d) { return d.GDP; })]);
-        scaleY.domain([190,0]);
-        // Tried below line, but did not work.
-        // scaleY.domain([d3.max(data, function(d) { return d.EaseOfBusiness; }),0]);
+        scaleY.domain([d3.max(data, function(d) { return parseInt(d.EaseOfBusiness); }),0]);        
         
         var axisX = d3.svg.axis().scale(scaleX).orient("bottom").tickFormat(function(d) { return "$" +d/1000+"k"});
         var axisY = d3.svg.axis().scale(scaleY).orient("left");
