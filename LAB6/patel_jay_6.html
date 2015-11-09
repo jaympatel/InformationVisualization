@@ -1,7 +1,30 @@
 <html>
-<head>
-<style>
-  .navy-back{
+    <head>
+        <style>
+            circle{
+                fill: red; 
+                opacity: 0.5; 
+            }
+            .domain { 
+                stroke: #000;
+                fill: none;
+            }
+            #tooltip {
+                background-color: white;
+                border: solid 1px #000;
+                width: 150px;
+                display: none;
+                position: absolute;
+            }
+            #CountryName { 
+                font-weight: bold;
+                display: block;
+            }
+            .highlighted { 
+                background: red;
+                color: white;
+            }
+            .navy-back{
     background-color: navy;
     color: white;
     padding: 5px;
@@ -10,204 +33,228 @@
     font-family: sans-serif;
     margin: auto;
   }
-  circle{
-    fill: red; /*Set the color of the circle to red */
-    opacity: 0.5; /*Set the opacity of the circle allowing the user to notice circles in the same position */
-  }
-  ul{
-    float: left
-  }
-  hr.vertical{
-    width: 0px;
-    height: 3800px;
-    float:left;
-  }
-  .domain{
-    fill:none;
-    stroke:#000;
-  } 
-  #tooltip{
-    background-color: white;
-    border: solid 1px #000;
-    width: 150px;
-    display: none;
-    position: absolute;
-  }
-  #country-name{
-    font-weight: bold;
-    display: block;
-  }
-
-</style>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
-
-<!--
-  Run following command which will allow to load the data.csv file
-
-  python -m SimpleHTTPServer
--->
-<script>
-    
-    var data = null;
-    d3.csv("data.csv", function(result){
-        dataloaded(result);
-    });
-
-    function dataloaded(result){
-        // Map the data into particular format
-        data = result.map(function(d){
-            return {
-                name: d.Country,
-                GDP: +d['GDP per Capita'].replace("$", "").replace(",", ""),
-                Year: new Date(d.Year).getYear() + 1900,
-                EaseOfBusiness: d['Ease of Business']
-            }
+        </style>
+        <title>Lab 6 | Information Visualization</title>
+    </head>
+    <body>
+       
+       <h1 id="title" class="navy-back"> Country GDP vs Easy of business</h1>
+        <label id="search">Search:</label>
+        <input onkeyup="Controler.filter(this.value)" />&nbsp;&nbsp;
+        <div id="Info"></div><br/>
+        <div id="tooltip"> 
+           <span id="CountryName">US</span>
+           <span id="CountryGDP">5654</span>
+           <span id="CountryEasy">154</span>
+        </div>
+        <ul id="CountryList" style="float:left"></ul> 
+        <svg id="viz"></svg>
+    </body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+    <script>
+        var data;
+        d3.csv("data.csv",function(result){
+            dataloaded(result);
         });
-        // Filter the data for year "2012"
-        data = data.filter(function(d) {
-            return d.Year == 2012;
-        });
-        data.sort(function(a, b) {
-          return d3.ascending(a.name, b.name);
-        });
-        listCountries();
-        showViz();
-    }
-
-    function showViz() {
-
-        //Set the width of the SVG to 600px;
-        d3.select("#viz").attr("width", 600);
-        d3.select("#viz").attr("height", 400);
         
-        //Create a scale to map GDP to Pixels
-        var scaleX = d3.scale.linear();
-        var scaleY = d3.scale.linear();
-        
-        //Set Pixel range from 10 to 590, allowing 10 pixels of padding.
-        scaleX.range([40, 590]);
-        scaleY.range([40, 380]);
-        
-        //Set the domain to be from 0 to the maximum GDP
-        scaleX.domain([0, d3.max(data, function(d) { return d.GDP; })]);
-        scaleY.domain([d3.max(data, function(d) { return parseInt(d.EaseOfBusiness); }),0]);
-        
-        var axisX = d3.svg.axis().scale(scaleX).orient("bottom").tickFormat(function(d) { return "$" +d/1000+"k"});
-        var axisY = d3.svg.axis().scale(scaleY).orient("left");
-
-        //Select the element that will hold the viz
-        var selection = d3.select("#viz") 
-            //Create virtual elements to be bound to the data
-            .selectAll("circle") 
-            //Bind each future 'circle' elements with each item in the data
-            .data(data, function(d) { return d.name; }); 
-        
-        //enter -> Operate only in new elements
-        selection.enter() 
-            //Create a real 'circle' element for each item in the data
-            .append("circle") 
-            //Set the radius of the circle to 5px, and position the circle according with the GDP on the x axis
-            .attr({
-                r: 5,
-                cx: function(d){ return scaleX(d.GDP) },
-                cy: function(d){ return scaleY(d.EaseOfBusiness)},
-                title: function(d){return d.name}
-            })
-            .on("mouseover",function(d){
-              // On mouse over select the dot and change the radius
-              d3.select(this).attr("r", 10);
-              d3.select(this).style({
-                "fill":"blue"
-              });
-              var tooltip = d3.select("#tooltip");
-              tooltip.select("#country-name").text(d.name);
-              tooltip.select("#country-gdp").text(d.GDP);
-              tooltip.select("#country-ease").text(d.EaseOfBusiness);
-              tooltip.style({
-                "display": "block",
-                "top": d3.event.y+10,
-                "left": d3.event.x+10
-              });
-
-            })
-            .on("mouseout", function(){
-              // On mouse out select the dot and change the radius
-              d3.select(this).attr("r", 5);
-              d3.select("#tooltip").style({
-                "display": 'none'
-              });
-              d3.select(this).style({
-                "fill":"red"
-              });
-            })
-            .on("click", function(d){
-              d3.select("#info").text(d.name+" - "+d.GDP+" - "+d.EaseOfBusiness);
-            })
-            .on("contextmenu", function(d, i){
-              d3.event.preventDefault();
-              data.splice(i, 1);
-              d3.select(this).remove();
+        function dataloaded(result)
+        {
+            data=result.map(function(d){
+                return{
+                    name:d.Country,
+                    year:new Date(d.Year).getYear()+1900,
+                    GDP:+d['GDP per Capita'].replace("$","").replace(",",""),
+                    Easy:d['Ease of Business']
+                }
             });
-        d3.select("#viz").append("g")
-                           .attr("transform","translate(0,380)")
-                           .call(axisX);
-        d3.select("#viz").append("g")
-                           .attr("transform","translate(40,0)")
-                           .call(axisY)
-    }
-    
-
-    function listCountries(){
-      var selection = d3.select("#list")
-                .selectAll("li")
-                .data(data, function(d) { return d.name; });
+            data=data.filter(function(d){
+                return d.year==2012;
+            });
+              data.sort(function(a,b){
+                        return d3.ascending(a.name, b.name);
+                    });
             
-            //enter
-            selection.enter().append("li");
-            
-            //exit
-            selection.exit().remove();
-            
-            //Update
-            selection.text(function(d) { return d.name + ": $" + d.GDP });
-    }
-
-    function search(){
-      console.log("Data length:"+data.length);
-      var search = d3.select("#search-term").node().value;
-      for(var i=0; i<data.length;i++){
-        if(data[i].name===search){
-          console.log(data[i].GDP);
-          d3.select("#gdp-value").node().innerHTML = "$"+data[i].GDP;
-          return;
+            //----------------------------------------
+            Sactterplot.init(); //Initiate the scatterplot
+            CountryList.init(); //Initiate the CountryList
+            Dispatcher.add(Sactterplot); //Add the scatterplot as a subscriber of the dispatcher
+            Dispatcher.add(CountryList); //Add the countrylist as a subscriber of the dispatcher
+            Controler.loadData(data); //Load the data.
         }
-      }
-      console.log("No Data Found!");
-      d3.select("#gdp-value").node().innerHTML = "No Data Found!";
-    }
-</script>
+    
+        // Create the Dispatcher object. It is responsible for notifing all views about any event.
+        var Dispatcher = {
+            add: function(view) {               //This function subscribe new views to the dispatcher so they can be notified
+                if(!this.subscribers) { //Check if the array exists 
+                    this.subscribers = []; //Create if not.
+                }
+                this.subscribers.push(view); //add the view to the array
+            },
+            notify: function(type, payload) {
+                this.subscribers.forEach(function(s) { //For each view of the array
+                    s[type](payload);                  //Call the method with the name passed in the type argument, and pass the payload as paramter
+                });
+            }
+        }
+        
+        //Create the Controler, this is the place where the main logic of the application goes, including data manipulation
+        var Controler = {
+            loadData: function() { //Load the data. This function cam be used to load the CSV file and process it. And than call the Dipatcher.notify on the callback
+                // console.log(data);
+                this.data = data;
+                Dispatcher.notify('dataUpdated', this.data); //Notify the views that the data has been updated.
+            },
+            remove: function(d) { //Remove and element of the data array
+                this.data.splice(this.indexByKey(d.name), 1);
+                Dispatcher.notify('dataUpdated', this.data); //Notify the views that the data has been updated.
+            },
+            indexByKey: function(key) {
+                for(var i = 0; i< this.data.length; i++){
+                    if(this.data[i].name == key) {
+                        return i;
+                    }
+                }
+                return -1;
+            },
+            filter: function(value) { //Filter the Data
+                var dt = this.data.filter(function(d) {
+                    return d.name.toLowerCase().indexOf(value.toLowerCase()) > -1; //Check if the substring 'value' is present in the country name. Uses lowercase to make sure that "United States" == "united states"
+                })
+                Dispatcher.notify('dataUpdated', dt);//Notify the views that the data has been updated, passinf the filtered data.
+            }
+        }
+        
+        //View 01 - The contry list in the left of the screen
+        var CountryList = {
+            init: function() {
+                this.list = d3.select("#CountryList"); //Specify which HTML element will hold the list
+            },
+            getElement: function(d) { //Utility function do get the HTML element given a data point
+                return this.list.selectAll("li").filter(function(e) { return d.name == e.name });
+            },
+            dataUpdated: function(data) { //Update the data, runs every time the event 'dataUpdated' is fired.
+                var selection = this.list.selectAll("li").data(data, function(d) { return d.name; }); //Bind data to "li" elements using name as key
+                selection.enter().append("li").text(function(d) { return d.name; }) //Add a "li" element for each new data point
+                    .on('mouseover', function(d) {
+                        Dispatcher.notify('onHighlight', d); //Notify the views that a datapoint have been Highlighted 
+                    }).on('mouseout', function(d) { 
+                        Dispatcher.notify('onUnHighlight', d); //Notify the views that a datapoint have been Unhighlighted 
+                    });
+                
+                selection.exit().remove(); //Remove elements from the visualization that have been removed from data.
+            },
+            onHighlight: function(d) {
+                this.list.selectAll("li")
+                    .classed('highlighted', function(e) { return d.name == e.name }) //Add the class 'highlighted' to the highlighted element 
+            },
+            onUnHighlight: function(d) {
+                this.list.selectAll("li")
+                    .classed('highlighted', false) //Remove the class 'highlighted' from all elements 
+            }
+        }
+        
+        //View 02 - The scatterplot
+        var Sactterplot = {
+            init: function() { //Initiate the scatterplot, everything in this function do not depened on data.
+                d3.select("#viz").attr("width", 600); //Change the width of the SVG element
+                d3.select("#viz").attr("height", 400); //Change the height of the SVG element
+                
+                this.scaleX = d3.scale.linear(); //Create the scale for the X axis
+                this.scaleY = d3.scale.linear(); //Create the scale for the Y axis
+                
+                this.scaleX.range([40, 590]); //Set the range for the X axis in pixels
+                this.scaleY.range([40, 380]); //Set the range for the Y axis in pixels
+                
+                this.xAxis = d3.svg.axis().scale(this.scaleX).orient("bottom").tickFormat(function(d) { return "$" +d/1000+"k"}); //Create the function that builds the x Axis that will be on the bottom of the screen
+                this.yAxis = d3.svg.axis().scale(this.scaleY).orient("left"); //Create the function that builds the y Axis that will be on the left of the screen
+                
+                this.xAxisGroup = d3.select("#viz").append("g") //Create a group to hold the svg elements that will be part of the x axis
+                    .attr("transform", "translate(0,380)" ) //Move the group to the bottom so the axis will be shown on the bottom of the screen.
+                    
+                this.yAxisGroup = d3.select("#viz").append("g") //Create a group to hold the svg elements that will be part of the y axis
+                    .attr("transform", "translate(40,0)" ) //Move the group 40 pixels to the righ to make room for the labels
+                    
+                
+            },
+            dataUpdated: function(data) { //Runs everytime that data changes
+                var self = this; //Assign 'this' to the variable 'self' so we can access it inside sub functions
+                
+                this.scaleX.domain([0, d3.max(data, function(d) { return d.GDP; })]); //Update the domain of the X scale
+                this.scaleY.domain([d3.max(data, function(d) { return parseInt(d.Easy); }),0]); //Update the domain of the Y scale
+                
+                var selection = d3.select("#viz") 
+                    .selectAll("circle") 
+                    .data(data, function(d) { return d.name; }); //Bind the data to circle elements in the svg
+                
+                //**Runs only if there are new data points in the array, and only for the new elements **//
+                selection.enter() 
+                    .append("circle")  //Add a circle for the new datapoint.
+                    .on('mouseover', function(d) {
+                        Dispatcher.notify('onHighlight', d);    //notify the views that an datapoint has been highlighted 
+                    }).on('mouseout', function(d) { 
+                        Dispatcher.notify('onUnHighlight', d);  //notify the views that an datapoint has been unhighlighted 
+                    }).on('click', function(d) {
+                        Dispatcher.notify('onSelect', d);       //notify the views that an datapoint has been selected 
+                    }).on('contextmenu', function(d, i){        //runs on right click
+                        d3.event.preventDefault();              //Prevent the browser of showing the default context menu
+                        d3.select("#tooltip").style({           //Hide the tooltip
+                            'display': 'none'
+                        });
+                        Controler.remove(d);   //Call the controler to remove the datapoint
+                    });
+                //**//
+                
+                //**Runs only if any datapoint has been removed in the array, and only for the removed datapoints **//
+                selection.exit().remove(); //Remove the circle from the screen
+                //**//
+                
+                //**Runs for all datapoints that still in the array**/
+                selection.transition().attr({ //The transition make the changes in the attributes to be interpolated, creating an animated transition
+                    r: 5,
+                    cx: function(d) { return self.scaleX(d.GDP) },
+                    cy: function(d) { return self.scaleY(d.Easy) }
+                });
+                //**//
+                this.xAxisGroup.transition().call(this.xAxis); //Update the X Axis
+                this.yAxisGroup.transition().call(this.yAxis); //Update the Y Axis
+            },
+            getItem: function(d) { //Utility function do get the SVG element given a data point
+                return d3.select("#viz").selectAll("circle").filter(function(e){
+                    return d.name == e.name;
+                });
+            },
+            onHighlight: function(d){ //Runs every time a dot have been highlighted no matter in which view.
+                this.getItem(d) //Select the circle/dot
+                    .attr("r", 10)
+                    .style({
+                      "fill":"blue"
+                    }); //changes the radius
 
-<title>LAB 4</title>
-</head>
-<body>
-  <h1 id="title" class="navy-back"> Country GDP vs Easy of business</h1>
-  <label id="search">Search:</label>
-  <input type="text" id="search-term" name="search-term"/>
-  <button id="go-button" class="navy-back" onclick="search()">Go</button>
-  <label>GDP: </label>
-  <label id="gdp-value"> </label>
-  <br/>
-  <br/>
-  <div id="info"></div>
-  <div id="tooltip">
-    <span id="country-name">US</span>
-    <span id="country-gdp">23</span>
-    <span id="country-ease">89</span>
-  </div>
-  <br/><br/>
-  <h2>Countries</h2>
-  <ul id="list"></ul><hr class="vertical"/>
-  <svg id="viz"></svg>
-</body>
+                //Update the tooltip information
+                var tooltip = d3.select("#tooltip"); 
+                    tooltip.select("#CountryName").text(d.name);
+                    tooltip.select("#CountryGDP").text(d.GDP);
+                    tooltip.select("#CountryEasy").text(d.Easy);
+
+                tooltip.style({
+                    'display': 'block', //Show the tooltip
+                    'top': d3.event.y + 10, //Move the tooltip close to the mouse
+                    'left': d3.event.x + 10 //Move the tooltip close to the mouse
+                })
+            },
+            onUnHighlight: function(d){ //Runs every time a dot have been unhighlighted no matter in which view.
+                this.getItem(d) //Select the circle/dot
+                    .attr("r", 5)
+                    .style({
+                      "fill":"red"
+                    });; //changes the radius
+                 d3.select("#tooltip").style({
+                    'display': 'none' //Hide the tooltip
+                })
+            }, 
+            onSelect: function(d){ //Runs every time a dot have been selected no matter in which view.
+                d3.select("#Info").text(d.name + ' - ' + d.GDP + ' - ' + d.Easy);
+            }
+        } 
+    </script>
 </html>
