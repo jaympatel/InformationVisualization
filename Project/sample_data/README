@@ -1,0 +1,18 @@
+Here are three sample log files:
+
+7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.plog
+    - Fake antivirus 
+    - Malware filename: bbc03a5638e801a09015eade0f496103.exe
+    - Video: http://laredo-13.mit.edu/~brendan/malrec/movies/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.mp4
+2435fa1e-71fe-42b1-a48e-c8c3f85e4443.plog
+    - Crypto extortion
+    - Malware filename: 0ecf6af48c5d091858efca32cb95c0d7.exe
+    - Video: http://laredo-13.mit.edu/~brendan/malrec/movies/2435fa1e-71fe-42b1-a48e-c8c3f85e4443.mp4
+d925fc9e-7903-4739-8c8c-cc023b16b450.plog
+    - Crypto extortion
+    - Malware filename: c6c55e775b7149c391ec9eac184586d4.exe
+    - Video: http://laredo-13.mit.edu/~brendan/malrec/movies/d925fc9e-7903-4739-8c8c-cc023b16b450.mp4
+
+They can be parsed using the included pandalog_reader.py script. You
+will need the Google Protocol Buffers python module installed, which you
+can install using "pip install protobuf".

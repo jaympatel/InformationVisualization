@@ -1,0 +1,91 @@
+Some terminology:
+    Registry key - an entry in the Windows configuration database. Each
+        key can contain multiple values.
+    Registry value - an item in the Windows configuration database.
+        Values are typed and always exist inside keys; you can think of keys
+        as being directories and values as being files.
+    Section - represents a block of memory that is shared between two
+        processes. In particular, if a section has a name, it can be
+        used as a communication channel between two processes.
+    Port - named objects used by Windows to implement interprocess
+        communication (IPC). Various calls then let you send and receive
+        messages on that port (similar to a network port)
+        [Note: these are not all that well understood -- but the important
+        piece is that each port typically represents a client/server
+        relationship between two processes]
+
+Process-related log entries:
+
+new_pid
+    indicates that the currently running process has changed
+nt_create_user_process
+    a new process was started
+nt_terminate_process
+    a process was terminated
+
+File-related log entries:
+
+nt_create_file
+    a file was opened
+nt_read_file
+    a file was read from
+nt_write_file
+    a file was written to
+nt_delete_file
+    a file was deleted
+
+Windows registry-related log entries:
+
+nt_create_key, nt_create_key_transacted, nt_open_key, nt_open_key_ex, nt_open_key_transacted, nt_open_key_transacted_ex
+    These all indicate a Windows registry key was opened
+nt_delete_key
+    a Windows registry key was deleted
+nt_query_key
+    a process made a query to list the values in a registry key
+
+
+nt_read_virtual_memory
+    one process read the memory of another
+nt_write_virtual_memory
+    one process wrote to the memory of another
+
+
+Section-related log entries:
+
+nt_create_section
+    a new section was created
+nt_open_section
+    an existing section was opened
+nt_map_view_of_section
+    the section was actually mapped in the the process's memory space
+
+Port IPC-related log entries:
+
+nt_create_port
+    an IPC port was created
+nt_connect_port
+    a client connected to an IPC port
+nt_listen_port
+    a server started listening on an IPC port
+nt_accept_connect_port
+    the server started accepting a connection on an IPC port
+nt_complete_connect_port
+    the server finished accepting a connection onan IPC port
+nt_request_port
+    a message was sent on a port
+nt_request_wait_reply_port
+    a message was sent on a port, and the sender waits for a reply
+nt_reply_port
+    a reply to a message was sent
+nt_reply_wait_reply_port
+    a response to a nt_request_wait_reply_port was sent
+nt_reply_wait_receive_port
+    a reply to a message was sent and the replier waited for the next
+    message
+nt_impersonate_client_of_port
+    used by the server to find out what permission level a client has
+
+Direct memory access log entries:
+(sometimes used by malware to inject and run code inside another
+process)
+

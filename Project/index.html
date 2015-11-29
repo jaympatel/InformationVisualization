@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+
+    <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="http://getbootstrap.com/examples/justified-nav/justified-nav.css" rel="stylesheet">
+
+    <style>
+        .axis path {
+            fill: none;
+            stroke: #777;
+            shape-rendering: crispEdges;
+        }
+        .axis text {
+            font-family: Lato;
+            font-size: 13px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="jumbotron">
+
+            <svg id="visualisation" width="1000" height="500"></svg>
+            <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+            <script>
+                var data = null;
+                d3.csv("7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
+                    dataLoaded(result);
+                });
+                function getUniqueValues(variable_name){
+                    var uniqueValues = [];
+                    for(i = 0; i< data.length; i++){    
+                        if(uniqueValues.indexOf(data[i][variable_name]) === -1){
+                            uniqueValues.push(data[i][variable_name]);
+                        }        
+                    }
+                    return uniqueValues
+                }
+                function dataLoaded(result){
+                    data = result.map(function(d){
+                        return {
+                            time: d.instr,
+                            call_name: d.call_name,
+                            pid: d.pid
+                        }
+                    });
+                    console.log(data.length);
+                    data = data.filter(function(d) {
+                        return d.pid == "1776" ;
+                    });
+                    console.log(data.length);
+                    InitChart();
+                }
+                function InitChart() {
+                        var yLabels = ["new_pid", "nt_request_wait_reply_port", "nt_request_port", "nt_create_file", "nt_create_key", "nt_reply_port", "nt_open_section", "nt_query_key", "nt_create_section", "nt_write_virtual_memory", "nt_reply_wait_receive_port", "nt_create_user_process", "nt_read_file", "nt_read_virtual_memory", "nt_connect_port", "nt_accept_connect_port", "nt_map_view_of_section", "nt_write_file", "nt_terminate_process", "nt_delete_key", "nt_create_port"]
+
+
+                    var vis = d3.select("#visualisation"),
+                        WIDTH = 1000,
+                        HEIGHT = 500,
+                        MARGINS = {
+                            top: 20,
+                            right: 20,
+                            bottom: 20,
+                            left: 50
+                        },
+                        xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(data, function(d) { return parseInt(d.time); }), d3.max(data, function(d) { return parseInt(d.time); })]),
+                        yScale = d3.scale.ordinal().rangeRoundBands([HEIGHT - MARGINS.top, MARGINS.bottom]).domain(yLabels),
+                        xAxis = d3.svg.axis()
+                        .scale(xScale),
+
+                        yAxis = d3.svg.axis()
+                        .scale(yScale)
+                        .orient("left");
+                        console.log(getUniqueValues("call_name"));
+
+
+
+                    
+
+                    vis.append("svg:g")
+                        .attr("class", "x axis")
+                        .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
+                        .call(xAxis);
+
+                    vis.append("svg:g")
+                        .attr("class", "y axis")
+                        .attr("transform", "translate(" + (MARGINS.left) + ",0)")
+                        .call(yAxis);
+
+                    var lineGen = d3.svg.line()
+                        .x(function(d) {
+                            return xScale(d.time);
+                        })
+                        .y(function(d) {
+                            return yScale(d.call_name);
+                        })
+                        .interpolate("basis");
+
+                    vis.append('svg:path')
+                        .attr('d', lineGen(data))
+                        .attr('stroke', 'green')
+                        .attr('stroke-width', 2)
+                        .attr('fill', 'none');
+                }
+            </script>
+        </div>
+
+    </div>
+
+</body>
+
+</html>
